@@ -1,22 +1,30 @@
+package agent;
+
+import model.Simulateur;
+import model.StartPositionHandler;
+
 import java.awt.*;
-import java.util.ArrayList;
 
 /**
  * Created by jvdur on 13/01/2016.
  */
 public class Agent {
 
-    private final Simulateur sim;
+    protected final Simulateur sim;
     public final boolean isWall;
-    private int posx;
-    private int posy;
-    private int dirx; // [-1, 0, 1]
-    private int diry; // [-1, 0, 1]
+    protected int posx;
+    protected int posy;
+    protected int dirx; // [-1, 0, 1]
+    protected int diry; // [-1, 0, 1]
 
     private Color color;
 
-    private int[][] options;
-    private int nboptions = 0;
+    protected int[][] options;
+    protected int nbValidOptions;
+    protected int nboptions = 0;
+
+    public int age;
+
 
 
     /**
@@ -37,13 +45,22 @@ public class Agent {
      */
     public void doit() {
 
+        clearOptions();
+
+        int posInitx = posx;
+        int posInity = posy;
+
+        setOptions();
+
+        takeDecision(posInitx, posInity);
+    }
+
+    /*
+     *  List all available option
+     */
+    protected void setOptions() {
+
         try {
-
-            clearOptions();
-
-            // Save de la position initiale
-            int posInitx = posx;
-            int posInity = posy;
 
             // Si aucune vitesse
             if (dirx == 0 && diry == 0) {
@@ -68,6 +85,8 @@ public class Agent {
                     dirx = -1;
                     diry = 1;
                 }
+            } else {
+
             }
 
             // La position d'après la suite de mouvement logique
@@ -115,7 +134,6 @@ public class Agent {
                     if (isfree(correctPositions(posx,posy+1))) {
                         addToOptions(posx+1, posy, 1, -diry);
                     }
-
                 } else if (dirx != 0) {
                     // si le mouvement est horizontal
                     if (isfree(correctPositions(posx+dirx,posy-1))) {
@@ -142,7 +160,7 @@ public class Agent {
 
             }
 
-            int nbValidOptions = nboptions;
+            nbValidOptions = nboptions;
             if (!Simulateur.IS_TORIQUE) {
                 for (int i=0; i<nboptions;i++) {
                     if (options[i][4] == 1 &&
@@ -154,39 +172,6 @@ public class Agent {
                         options[i][4] = 0;
                         nbValidOptions--;
                     }
-                }
-            }
-
-
-            /*
-             *   GESTION DES OPTIONS
-             */
-            if (nbValidOptions == 0) {
-                dirx *= -1;
-                diry *= -1;
-            } else {
-                int option = (int) (Math.random() * (nbValidOptions - 1));
-                int optionsave = option;
-                while(options[option][4] == 0) {
-                    option = (++option%(nboptions-1));
-                    if (option == optionsave) {
-                        optionsave = -1;
-                        break;
-                    }
-                }
-
-                if(optionsave == -1){
-                    dirx *= -1;
-                    diry *= -1;
-                } else {
-
-                    posx = options[option][0];
-                    posy = options[option][1];
-                    dirx = options[option][2];
-                    diry = options[option][3];
-
-                    sim.getPlateau()[posInitx][posInity] = null;
-                    sim.getPlateau()[posx][posy] = this;
                 }
             }
 
@@ -202,17 +187,60 @@ public class Agent {
 
 
     /*
+     *   Take the best option
+     */
+    protected void takeDecision(int posInitx, int posInity) {
+
+        if (nbValidOptions == 0) {
+            dirx *= -1;
+            diry *= -1;
+        } else {
+            int option = (int) (Math.random() * (nbValidOptions - 1));
+            int optionsave = option;
+            while(options[option][4] == 0) {
+                option = (++option%(nboptions-1));
+                if (option == optionsave) {
+                    optionsave = -1;
+                    break;
+                }
+            }
+
+            if(optionsave == -1){
+                dirx *= -1;
+                diry *= -1;
+            } else {
+                posx = options[option][0];
+                posy = options[option][1];
+                dirx = options[option][2];
+                diry = options[option][3];
+
+                moveTo(posInitx, posInity, posx, posy);
+            }
+        }
+
+    }
+
+
+    protected void moveTo(int posInitx, int posInity, int posx, int posy) {
+        this.posx = posx;
+        this.posy = posy;
+        sim.getPlateau()[posInitx][posInity] = null;
+        sim.getPlateau()[posx][posy] = this;
+    }
+
+
+    /*
      * METHODES UTILITAIRES
      */
-    private boolean isfree(int[] data) {
+    protected boolean isfree(int[] data) {
         return isfree(data[0], data[1]);
     }
 
-    private boolean isfree(int x, int y) {
+    protected boolean isfree(int x, int y) {
         return (sim.getPlateau()[x][y] == null);
     }
 
-    private int correctPositionX(int data) {
+    protected int correctPositionX(int data) {
         if (data > 0 && data < sim.getGridSizeX())
             return data;
         else if (data < 0)
@@ -221,7 +249,7 @@ public class Agent {
             return 0;
     }
 
-    private int correctPositionY(int data) {
+    protected int correctPositionY(int data) {
         if (data > 0 && data < sim.getGridSizeY())
             return data;
         else if (data < 0)
@@ -236,7 +264,7 @@ public class Agent {
         return data;
     }
 
-    private int[] correctPositions(int x, int y) {
+    protected int[] correctPositions(int x, int y) {
         int[] ret = new int[2];
         ret[0] = correctPositionX(x);
         ret[1] = correctPositionY(y);
@@ -248,7 +276,7 @@ public class Agent {
         addToOptions(data[0], data[1], data[2], data[3]);
     }
 
-    private void addToOptions(int x, int y, int dx, int dy) {
+    protected void addToOptions(int x, int y, int dx, int dy) {
         options[nboptions][0] = correctPositionX(x);
         options[nboptions][1] = correctPositionY(y);
         options[nboptions][2] = dx;
@@ -257,9 +285,9 @@ public class Agent {
         nboptions++;
     }
 
-    private void clearOptions() {
+    protected void clearOptions() {
         options = null;
-        options = new int[6][5];
+        options = new int[10][5];
         nboptions = 0;
     }
 
@@ -315,7 +343,6 @@ public class Agent {
     }
 
     private void setPosx(int posx) {
-
         this.posx = posx;
     }
 }

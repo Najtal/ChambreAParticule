@@ -1,3 +1,5 @@
+package util;
+
 import java.util.Random;
 
 /**
@@ -10,7 +12,7 @@ public class Util {
      * @param arraySize la taille du tableau souhaité
      * @return un tableau de int mélangé entre 0 et arraySize-1
      */
-    static int[] getRandomTable(int arraySize) {
+    public static int[] getRandomTable(int arraySize) {
         // On génère le tableau
         int[] array = getTable(arraySize);
 
@@ -26,7 +28,7 @@ public class Util {
         return array;
     }
 
-    static int[] getTable(int arraySize) {
+    public static int[] getTable(int arraySize) {
         int[] array = new int[arraySize];
         for (int i = 0; i < array.length; i++) {
             array[i] = i;
@@ -48,7 +50,7 @@ public class Util {
         if (nbAgents/(gridSizeX*gridSizeY) > 0.8) ce = printValid(2,ce,"Il ne reste pas beaucoup de place pour les billes, tableau rempli à " + nbAgents/gridSizeX*gridSizeY *100 + '%');
         if (ballSize < 0) ce = printValid(3,ce,"La taille des billes doit etre positif !");
         if (vitesse < 0) ce = printValid(3,ce,"La vitesse doit être positive");
-        if (colorMode < -1) ce = printValid(1,ce,"Le colorMode doit être compris entre supérieur ou égale à -1");
+        if (colorMode < -2) ce = printValid(1,ce,"Le colorMode doit être compris entre supérieur ou égale à -2");
 
 
         if (ce) return ce;

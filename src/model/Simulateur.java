@@ -1,3 +1,9 @@
+package model;
+
+import agent.Agent;
+import gui.World;
+import util.Util;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -11,18 +17,27 @@ public class Simulateur extends java.util.Observable implements Runnable {
     public static boolean IS_TORIQUE;
     public static boolean JEU;
 
+    public static int sharkStarveTime;
+    public static int fishBreedTime;
+    public static int sharkBreedTime;
+    private final int nbFishPerShark;
+
     private final int gridSizeY;
     private final int gridSizeX;
     private final boolean paroleRandom;
     private ArrayList<Agent> agents;
-    private Agent[][] plateau;
+    public Agent[][] plateau;
     private int nbTours;
     private int vitesse;
     private boolean isfini;
     private JFrame ihm;
     private StartPositionHandler startPositionHandler;
 
-    public Simulateur(int nbAgents, int nbTours, int gridSizeX, int gridSizeY, int vitesse, boolean paroleRandom, int colorMode, boolean istorique, boolean jeu) {
+    public Simulateur(int nbAgents, int nbTours, int gridSizeX,
+                      int gridSizeY, int vitesse, boolean paroleRandom,
+                      int colorMode, boolean istorique, boolean jeu,
+                      int fishBreedTime, int sharkBreedTime, int sharkStarveTime,
+                      int nbFishPerShark) {
 
         this.nbTours = nbTours;
         this.vitesse = vitesse;
@@ -34,10 +49,15 @@ public class Simulateur extends java.util.Observable implements Runnable {
         this.paroleRandom = paroleRandom;
         Simulateur.JEU = jeu;
 
-        this.startPositionHandler = new StartPositionHandler(gridSizeX, gridSizeY, colorMode);
+        this.fishBreedTime = fishBreedTime;
+        this.sharkBreedTime = sharkBreedTime;
+        this.sharkStarveTime = sharkStarveTime;
+        this.nbFishPerShark = nbFishPerShark;
+
+        this.startPositionHandler = new StartPositionHandler(this, gridSizeX, gridSizeY, colorMode);
 
         // On crée les agents
-        agents = startPositionHandler.getStartPositions(nbAgents, this, istorique);
+        agents = startPositionHandler.getStartPositions(nbAgents, this, istorique, nbFishPerShark);
         plateau = startPositionHandler.getPlateau();
 
     }
@@ -53,17 +73,34 @@ public class Simulateur extends java.util.Observable implements Runnable {
         int cpt = 0;
         while(!isfini && (cpt < nbTours || nbTours == 0)) {
 
+            agents.trimToSize();
+
             // On genere un tablea d'ordre aleatoire ou pas
             if (paroleRandom) {
-                orderTable = Util.getRandomTable(agents.size());
+                orderTable = Util.getRandomTable(agents. size());
             } else {
                 orderTable = Util.getTable(agents.size());
             }
 
             // pour chaque agent
-            for (int j = 0; j < agents.size(); j++) {
+            /*for (int j = 0; j < agents.size(); j++) {
                 // On le fais jouer
-                agents.get(orderTable[j]).doit();
+                try {
+                    if (agents.size() > j && orderTable.length > j) {
+                        if (agents.get(orderTable[j]) != null)
+                            agents.get(orderTable[j]).doit();
+                    }
+                } catch (Exception e) {
+
+                }
+            }*/
+
+            ArrayList<Agent> agentClone = (ArrayList<Agent>) agents.clone();
+            for (int j=0; j<agentClone.size();j++) {
+                try {
+                    agentClone.get(j).doit();
+                } catch (Exception e) {
+                }
             }
 
             // On check la fin du jeu si jeu
@@ -84,7 +121,7 @@ public class Simulateur extends java.util.Observable implements Runnable {
             }
 
             setChanged();
-            notifyObservers();
+            //notifyObservers();
             notifyObservers(this.agents);
 
             try {
@@ -112,6 +149,11 @@ public class Simulateur extends java.util.Observable implements Runnable {
 
     public int getGridSizeX() { return gridSizeX; }
 
+    public StartPositionHandler getStartPositionHandler() {
+        return startPositionHandler;
+    }
+
+
     /**
      * Methode MAIN, initialise et lance l'application
      * @param args tableau d'arguments
@@ -126,10 +168,14 @@ public class Simulateur extends java.util.Observable implements Runnable {
      *    args[8] : colorMode   -> [ 0:unicolor ; [2-6]: # une_bille_rouge ; -1:multicolor
      *    args[9] : torique     -> détermine si le monde est torique (1) ou non (!1)
      *    args[10] : game        -> lance le jeu des couleurs (1) ou non (!1)
+     *    args[11] : fish breed time
+     *    args[12] : shark breed time
+     *    args[13] : shark starve time
+     *    args[14] : Nombre de poisson par requin
      */
     public static void main(String args[]) {
 
-        if (args.length != 11) {
+        if (args.length != 15) {
             System.out.println("ERROR : mauvais nombre d'arguments");
             System.exit(0);
         }
@@ -146,6 +192,11 @@ public class Simulateur extends java.util.Observable implements Runnable {
         boolean isTorique = false;
         boolean jeu = false;
 
+        int fishBreedTime = 0;
+        int sharkBreedTime = 0;
+        int sharkStarveTime = 0;
+        int nbFishPerShark = 0;
+
         try {
 
             nbAgents = Integer.parseInt(args[0]);
@@ -159,6 +210,11 @@ public class Simulateur extends java.util.Observable implements Runnable {
             colorMode = Integer.parseInt(args[8]);
             isTorique = (Integer.parseInt(args[9]) == 1) ? true : false;
             jeu = (Integer.parseInt(args[10]) == 1) ? true : false;
+
+            fishBreedTime = Integer.parseInt(args[11]);
+            sharkBreedTime = Integer.parseInt(args[12]);
+            sharkStarveTime = Integer.parseInt(args[13]);
+            nbFishPerShark = Integer.parseInt(args[14]);
 
             if (jeu) {
                 colorMode = -1;
@@ -174,7 +230,10 @@ public class Simulateur extends java.util.Observable implements Runnable {
         }
 
         // Cree le simulateur
-        Simulateur sim = new Simulateur(nbAgents, nbTours, gridSizeX, gridSizeY, vitesse, paroleRandom, colorMode, isTorique, jeu);
+        Simulateur sim = new Simulateur(nbAgents, nbTours, gridSizeX,
+                gridSizeY, vitesse, paroleRandom,
+                colorMode, isTorique, jeu,
+                fishBreedTime, sharkBreedTime, sharkStarveTime, nbFishPerShark);
 
         // Cree l'IHM
         World world = new World(sim.FRAME_DIMENSIONS, gridSizeX, gridSizeY, ballSize, sim, grille);

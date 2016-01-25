@@ -1,8 +1,11 @@
+package gui;
+
+import model.Simulateur;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -44,7 +47,7 @@ public class World extends JFrame implements ChangeListener, Observer {
         model.addObserver(this);
 
         // Initialisation du canvas
-        this.canvas = new Canvas(gridSizeX, gridSizeY, particleSize, model, grille);
+        this.canvas = new gui.Canvas(gridSizeX, gridSizeY, particleSize, model, grille);
 
         // Frame construction
         JScrollPane scrPane = new JScrollPane(canvas, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,

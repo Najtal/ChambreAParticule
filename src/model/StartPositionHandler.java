@@ -1,3 +1,11 @@
+package model;
+
+import agent.AFish;
+import agent.AShark;
+import agent.Agent;
+import model.Simulateur;
+import util.Util;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -7,6 +15,7 @@ import java.util.ArrayList;
 public class StartPositionHandler {
 
     private final int colorMode;
+    private final Simulateur sim;
     private int[] taken;
     private int positionsTaken;
     private int gridSizeX;
@@ -15,7 +24,9 @@ public class StartPositionHandler {
 
     private ArrayList<Color> colorArray;
 
-    public StartPositionHandler(int gridSizeX, int gridSizeY, int colorMode) {
+    public StartPositionHandler(Simulateur sim, int gridSizeX, int gridSizeY, int colorMode) {
+
+        this.sim = sim;
         this.taken = Util.getRandomTable(gridSizeX * gridSizeY);
         this.gridSizeX = gridSizeX;
         this.gridSizeY = gridSizeY;
@@ -36,7 +47,9 @@ public class StartPositionHandler {
         return plateau;
     }
 
-    public ArrayList<Agent> getStartPositions(int nbAgents, Simulateur sim, boolean torique) {
+    public ArrayList<Agent> getStartPositions(int nbAgents, Simulateur sim, boolean torique, int nbFishPerShark) {
+
+        System.out.println("nb Fish per Shark = " + nbFishPerShark);
 
         if (!torique) {
             for (int i=0;i<gridSizeX;i++) {
@@ -69,16 +82,19 @@ public class StartPositionHandler {
                 spb.posx = gridSizeX-1;
                 plateau[gridSizeX-1][i] = new Agent(spb, sim, true);
             }
-
         }
+
 
         ArrayList<Agent> agents = new ArrayList<>(nbAgents);
         int colorCounter = colorMode;
+
+        System.out.println("colorMode : " + colorMode);
 
         // On crée les agents
         for (int i=0; i<nbAgents; i++) {
             StartPosition sp = new StartPosition();
 
+            boolean isShark = false;
             boolean free = true;
             do {
                 sp.posx = taken[positionsTaken] % gridSizeX;
@@ -87,10 +103,16 @@ public class StartPositionHandler {
                 free = (plateau[sp.posx][sp.posy] == null);
             } while (!free);
 
-            sp.dirx = (int) (Math.random() * (3)) - 2;
-            sp.diry = (int) (Math.random() * (3)) - 2;
+            do {
+                sp.dirx = (int) (Math.random() * (3)) - 2;
+                sp.diry = (int) (Math.random() * (3)) - 2;
+            } while (sp.dirx != 0 && sp.diry != 0);
 
-            if(colorMode == -1) {
+            if (colorMode == -2) {
+                if (i%nbFishPerShark==0) {
+                    isShark = true;
+                }
+            } else if(colorMode == -1) {
                 sp.color = colorArray.get((int) (Math.random() * (colorArray.size() - 1)));
             } else {
                 if (colorCounter > 0) {
@@ -104,25 +126,59 @@ public class StartPositionHandler {
                 } else {
                     sp.color = Color.DARK_GRAY;
                 }
-
             }
 
-            Agent a = new Agent(sp, sim, false);
-            agents.add(a);
+            if (colorMode == -2) {
 
-            plateau[sp.posx][sp.posy] = a;
+                if (isShark) {
+                    sp.color = Color.red;
+                    AShark as = new AShark(sp, sim, false, sim.sharkStarveTime, sim.sharkBreedTime);
+                    agents.add(as);
+                    plateau[sp.posx][sp.posy] = as;
+                } else {
+                    sp.color = Color.blue;
+                    AFish af = new AFish(sp, sim, false, sim.fishBreedTime);
+                    agents.add(af);
+                    plateau[sp.posx][sp.posy] = af;
+                }
+            } else {
+
+                System.out.println("new agent ");
+
+                Agent a = new Agent(sp, sim, false);
+                agents.add(a);
+                plateau[sp.posx][sp.posy] = a;
+            }
 
         }
         return agents;
     }
 
+    public void giveBirth(Simulateur sim, int posx, int posy, int dirx, int diry, boolean isShark, Color color) {
+
+        StartPosition sp = new StartPosition();
+        sp.posx = posx;
+        sp.posy = posy;
+        sp.dirx = dirx;
+        sp.diry = diry;
+        sp.color = color;
+
+        Agent a;
+        if (isShark) {
+            a = new AShark(sp, sim, false, sim.sharkStarveTime, sim.sharkBreedTime);
+        } else {
+            a = new AFish(sp, sim, false, sim.fishBreedTime);
+        }
+        this.sim.getAgents().add(a);
+        this.sim.getPlateau()[posx][posy] = a;
+    }
 
     public class StartPosition {
-        int posx;
-        int posy;
-        int dirx;
-        int diry;
-        Color color;
+        public int posx;
+        public int posy;
+        public int dirx;
+        public int diry;
+        public Color color;
     }
 
 
