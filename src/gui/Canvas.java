@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -64,6 +65,8 @@ public class Canvas extends JPanel implements MouseListener, Observer {
 
     public void paintComponent(Graphics g) {
 
+        ArrayList<Agent> agents = (ArrayList<Agent>) model.getAgents().clone();
+
         if (grille) {
             g.setColor(Color.lightGray);
 
@@ -99,32 +102,29 @@ public class Canvas extends JPanel implements MouseListener, Observer {
 
 
         // Pour chaque agent
-        for (Agent agent : model.getAgents()) {
+        for (Agent agent : agents) {
             // On dessine la particule
-            if(agent.age <= 1) {
-                g.setColor(Color.green);
-            } else {
-                g.setColor(agent.getColor());
-            }
-
-            //g.fillRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize);
-            g.fillRoundRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize, particleArc, particleArc);
-
             if (agent instanceof AShark) {
-                g.setColor(Color.white);
-                char [] carray = { (((AShark) agent).starve+"").charAt(0) };
-                g.drawChars(carray, 0, carray.length, agent.getPosx()*particleSize+particleSize/2, agent.getPosy()*particleSize+particleSize/2);
+                //g.setColor(Color.white);
+                //char [] carray = { (((AShark) agent).starve+"").charAt(0) };
+                //g.drawChars(carray, 0, carray.length, agent.getPosx()*particleSize+particleSize/2, agent.getPosy()*particleSize+particleSize/2);
 
-                if (((AShark) agent).breed ==((AShark) agent).breedTime) {
-                    g.setColor(Color.green);
-                    g.fillRoundRect(agent.getPosx()*particleSize+particleSize/3, agent.getPosy()*particleSize+particleSize/3, particleSize/4, particleSize/4, particleArc, particleArc);
+                if(agent.age <= 1) {
+                    g.setColor(Color.PINK);
+                } else {
+                    g.setColor(Color.RED);
                 }
+                //g.fillRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize);
+                g.fillRoundRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize, particleArc, particleArc);
+
             } else {
-                if (((AFish) agent).breed == ((AFish) agent).breedTime) {
-                    g.setColor(Color.green);
-                    g.fillRoundRect(agent.getPosx()*particleSize+particleSize/3, agent.getPosy()*particleSize+particleSize/3, particleSize/4, particleSize/4, particleArc, particleArc);
-                }
 
+                if(agent.age <= 1) {
+                    g.setColor(Color.GREEN);
+                } else {
+                    g.setColor(Color.BLUE);
+                }
+                g.fillRoundRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize, particleArc, particleArc);
             }
 
         }
