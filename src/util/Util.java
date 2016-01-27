@@ -39,8 +39,9 @@ public class Util {
 
     public static boolean validationDesArguments(int nbAgents, int nbTours, int gridSizeX, int gridSizeY, int ballSize, int vitesse, boolean paroleRandom, boolean grille, int colorMode, boolean isTorique, boolean jeu) {
 
-        boolean ce = false;
 
+        boolean ce = false;
+/*
         if (nbAgents < 1) ce = printValid(3,ce,"Le nombre d'agents doit êttre suppérieur à zéro");
         if (nbAgents < 2000) ce = printValid(2,ce,"Attention ca fait beaucoup de billes");
         if (nbTours < 0) ce = printValid(3,ce, "Le nombre de tour doit être égal à 0 pour tourner à l'infini ou suppérieur pour déterminer un nombre de tours");
@@ -54,6 +55,7 @@ public class Util {
 
 
         if (ce) return ce;
+
 
         // INFO
         print(1, "Nombre d'agents \t " + nbAgents);
@@ -70,7 +72,7 @@ public class Util {
         }
 
         print(1, "Le monde " + ((!isTorique)?"n'est pas":"est") + " torique");
-
+		*/
         return ce;
     }
 

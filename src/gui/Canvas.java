@@ -67,66 +67,74 @@ public class Canvas extends JPanel implements MouseListener, Observer {
 
         ArrayList<Agent> agents = (ArrayList<Agent>) model.getAgents().clone();
 
-        if (grille) {
-            g.setColor(Color.lightGray);
+        if (agents != null && agents.size() >= 1) {
 
-            // Lignes horizontales
-            for (int i=1; i<nbParticleWidth; i++) {
-                g.drawLine(i*particleSize,0,i*particleSize,canvasHeight);
-            }
+	        if (grille) {
+	            g.setColor(Color.lightGray);
+	
+	            // Lignes horizontales
+	            for (int i=1; i<nbParticleWidth; i++) {
+	                g.drawLine(i*particleSize,0,i*particleSize,canvasHeight);
+	            }
+	
+	            // Lignes verticales
+	            for (int i=0; i<nbParticleHeight; i++) {
+	                g.drawLine(0,i*particleSize,canvasWidth,i*particleSize);
+	            }
+	        }
+	
+	        if (!Simulateur.IS_TORIQUE) {
+	            // On dessine les bords
+	            g.setColor(Color.GRAY);
+	            int hauteur = (nbParticleHeight-1)*particleSize;
+	            int largeur = (nbParticleWidth-1)*particleSize;
+	            for (int i=0;i<nbParticleWidth;i++) {
+	                // HAUT
+	                g.fillRect(i*particleSize,0,particleSize,particleSize);
+	                // BAS
+	                g.fillRect(i*particleSize,hauteur,particleSize,particleSize);
+	            }
+	            for (int i=0;i<nbParticleHeight;i++) {
+	                // GAUCHE
+	                g.fillRect(0,i*particleSize,particleSize,particleSize);
+	                // DROIT
+	                g.fillRect(largeur,i*particleSize,particleSize,particleSize);
+	            }
+	        }
+	
+	
+	        // Pour chaque agent
+	        for (Agent agent : agents) {
+	            // On dessine la particule
+	            if (agent instanceof AShark) {
+	                //g.setColor(Color.white);
+	                //char [] carray = { (((AShark) agent).starve+"").charAt(0) };
+	                //g.drawChars(carray, 0, carray.length, agent.getPosx()*particleSize+particleSize/2, agent.getPosy()*particleSize+particleSize/2);
+	
+	                if(agent.age <= 1) {
+	                    g.setColor(Color.PINK);
+	                } else {
+	                    g.setColor(Color.RED);
+	                }
+	                //g.fillRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize);
+	                g.fillRoundRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize, particleArc, particleArc);
+	
+	            } else {
 
-            // Lignes verticales
-            for (int i=0; i<nbParticleHeight; i++) {
-                g.drawLine(0,i*particleSize,canvasWidth,i*particleSize);
-            }
-        }
+                    try {
+                        if(agent.age <= 1) {
+                            g.setColor(Color.GREEN);
+                        } else {
+                            g.setColor(Color.BLUE);
+                        }
+                        g.fillRoundRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize, particleArc, particleArc);
+                    } catch (Exception e) {
 
-        if (!Simulateur.IS_TORIQUE) {
-            // On dessine les bords
-            g.setColor(Color.GRAY);
-            int hauteur = (nbParticleHeight-1)*particleSize;
-            int largeur = (nbParticleWidth-1)*particleSize;
-            for (int i=0;i<nbParticleWidth;i++) {
-                // HAUT
-                g.fillRect(i*particleSize,0,particleSize,particleSize);
-                // BAS
-                g.fillRect(i*particleSize,hauteur,particleSize,particleSize);
-            }
-            for (int i=0;i<nbParticleHeight;i++) {
-                // GAUCHE
-                g.fillRect(0,i*particleSize,particleSize,particleSize);
-                // DROIT
-                g.fillRect(largeur,i*particleSize,particleSize,particleSize);
-            }
-        }
-
-
-        // Pour chaque agent
-        for (Agent agent : agents) {
-            // On dessine la particule
-            if (agent instanceof AShark) {
-                //g.setColor(Color.white);
-                //char [] carray = { (((AShark) agent).starve+"").charAt(0) };
-                //g.drawChars(carray, 0, carray.length, agent.getPosx()*particleSize+particleSize/2, agent.getPosy()*particleSize+particleSize/2);
-
-                if(agent.age <= 1) {
-                    g.setColor(Color.PINK);
-                } else {
-                    g.setColor(Color.RED);
-                }
-                //g.fillRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize);
-                g.fillRoundRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize, particleArc, particleArc);
-
-            } else {
-
-                if(agent.age <= 1) {
-                    g.setColor(Color.GREEN);
-                } else {
-                    g.setColor(Color.BLUE);
-                }
-                g.fillRoundRect(agent.getPosx()*particleSize, agent.getPosy()*particleSize, particleSize, particleSize, particleArc, particleArc);
-            }
-
+                    }
+	            }
+	
+	        }
+    	
         }
 
     }

@@ -1,5 +1,7 @@
 package model;
 
+import agent.AFish;
+import agent.AShark;
 import agent.Agent;
 import gui.World;
 import util.Util;
@@ -25,6 +27,7 @@ public class Simulateur extends java.util.Observable implements Runnable {
     private final int gridSizeY;
     private final int gridSizeX;
     private final boolean paroleRandom;
+    private final int colorMode;
     private ArrayList<Agent> agents;
     public Agent[][] plateau;
     private int nbTours;
@@ -44,6 +47,8 @@ public class Simulateur extends java.util.Observable implements Runnable {
 
         this.gridSizeX = gridSizeX;
         this.gridSizeY = gridSizeY;
+
+        this.colorMode = colorMode;
 
         Simulateur.IS_TORIQUE = istorique;
         this.paroleRandom = paroleRandom;
@@ -68,6 +73,9 @@ public class Simulateur extends java.util.Observable implements Runnable {
 
         int[] orderTable;
         isfini = false;
+
+        // Header de la sortie
+        System.out.println("SHARKS,FISH,BABY SHARK,BABY FISH");
 
         // Pour chaque tour
         int cpt = 0;
@@ -102,6 +110,33 @@ public class Simulateur extends java.util.Observable implements Runnable {
                 } catch (Exception e) {
                 }
             }
+
+
+            if (colorMode == -2) {
+
+                int sharks = 0;
+                int sharksNewBorn = 0;
+                int fish = 0;
+                int fishNewBorn = 0;
+
+                for (Agent a : agents) {
+                    if (a instanceof AShark) {
+                        sharks++;
+                        if (a.age <= 1) {
+                            sharksNewBorn++;
+                        }
+                    } else if (a instanceof AFish) {
+                        fish++;
+                        if (a.age <= 1) {
+                            fishNewBorn++;
+                        }
+                    }
+                }
+
+                System.out.println(sharks+","+fish+","+sharksNewBorn+","+fishNewBorn);
+
+            }
+
 
             // On check la fin du jeu si jeu
             if (JEU) {

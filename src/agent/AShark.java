@@ -20,8 +20,8 @@ public class AShark extends Agent {
      * @param sim
      * @param isWall
      */
-    public AShark(StartPositionHandler.StartPosition sp, Simulateur sim, boolean isWall, int starveTime,int breedTime) {
-        super(sp, sim, isWall);
+    public AShark(StartPositionHandler.StartPosition sp, Simulateur sim, int starveTime,int breedTime) {
+        super(sp, sim);
         this.breedTime = breedTime;
         this.starveTime = starveTime;
         this.starve = 0;

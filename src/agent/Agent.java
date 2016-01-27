@@ -11,7 +11,6 @@ import java.awt.*;
 public class Agent {
 
     protected final Simulateur sim;
-    public final boolean isWall;
     protected int posx;
     protected int posy;
     protected int dirx; // [-1, 0, 1]
@@ -30,14 +29,13 @@ public class Agent {
     /**
      * Constructeur d'agent
      */
-    public Agent(StartPositionHandler.StartPosition sp, Simulateur sim, boolean isWall) {
+    public Agent(StartPositionHandler.StartPosition sp, Simulateur sim) {
         this.posx = sp.posx;
         this.posy = sp.posy;
         this.dirx = sp.dirx;
         this.diry = sp.diry;
         this.color = sp.color;
         this.sim = sim;
-        this.isWall = isWall;
     }
 
     /**
@@ -99,7 +97,7 @@ public class Agent {
             } else {
 
                 if (Simulateur.JEU) {
-                    if (!sim.getPlateau()[correctPositionX(devantx)][correctPositionY(devanty)].isWall)
+                    if (!(sim.getPlateau()[correctPositionX(devantx)][correctPositionY(devanty)] instanceof AWall))
                         sim.getPlateau()[correctPositionX(devantx)][correctPositionY(devanty)].setColor(this.color);
                 }
 

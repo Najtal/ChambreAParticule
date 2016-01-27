@@ -2,6 +2,7 @@ package model;
 
 import agent.AFish;
 import agent.AShark;
+import agent.AWall;
 import agent.Agent;
 import model.Simulateur;
 import util.Util;
@@ -47,9 +48,8 @@ public class StartPositionHandler {
         return plateau;
     }
 
+    
     public ArrayList<Agent> getStartPositions(int nbAgents, Simulateur sim, boolean torique, int nbFishPerShark) {
-
-        System.out.println("nb Fish per Shark = " + nbFishPerShark);
 
         if (!torique) {
             for (int i=0;i<gridSizeX;i++) {
@@ -58,14 +58,14 @@ public class StartPositionHandler {
                 sp.dirx = 0;
                 sp.posy = 0;
                 sp.posx = i;
-                plateau[i][0] = new Agent(sp, sim, true);
+                plateau[i][0] = new AWall(sp, sim);
 
                 StartPosition spb = new StartPosition();
                 spb.diry = 0;
                 spb.dirx = 0;
                 spb.posy = gridSizeY-1;
                 spb.posx = i;
-                plateau[i][gridSizeY-1] = new Agent(spb, sim, true);
+                plateau[i][gridSizeY-1] = new AWall(spb, sim);
             }
             for (int i=0;i<gridSizeY;i++) {
                 StartPosition sp = new StartPosition();
@@ -73,22 +73,20 @@ public class StartPositionHandler {
                 sp.dirx = 0;
                 sp.posy = i;
                 sp.posx = 0;
-                plateau[0][i] = new Agent(sp, sim, true);
+                plateau[0][i] = new AWall(sp, sim);
 
                 StartPosition spb = new StartPosition();
                 spb.diry = 0;
                 spb.dirx = 0;
                 spb.posy = i;
                 spb.posx = gridSizeX-1;
-                plateau[gridSizeX-1][i] = new Agent(spb, sim, true);
+                plateau[gridSizeX-1][i] = new AWall(spb, sim);
             }
         }
 
 
         ArrayList<Agent> agents = new ArrayList<>(nbAgents);
         int colorCounter = colorMode;
-
-        System.out.println("colorMode : " + colorMode);
 
         // On crée les agents
         for (int i=0; i<nbAgents; i++) {
@@ -132,20 +130,18 @@ public class StartPositionHandler {
 
                 if (isShark) {
                     sp.color = Color.red;
-                    AShark as = new AShark(sp, sim, false, sim.sharkStarveTime, sim.sharkBreedTime);
+                    AShark as = new AShark(sp, sim, sim.sharkStarveTime, sim.sharkBreedTime);
                     agents.add(as);
                     plateau[sp.posx][sp.posy] = as;
                 } else {
                     sp.color = Color.blue;
-                    AFish af = new AFish(sp, sim, false, sim.fishBreedTime);
+                    AFish af = new AFish(sp, sim, sim.fishBreedTime);
                     agents.add(af);
                     plateau[sp.posx][sp.posy] = af;
                 }
             } else {
 
-                System.out.println("new agent ");
-
-                Agent a = new Agent(sp, sim, false);
+                Agent a = new Agent(sp, sim);
                 agents.add(a);
                 plateau[sp.posx][sp.posy] = a;
             }
@@ -165,9 +161,9 @@ public class StartPositionHandler {
 
         Agent a;
         if (isShark) {
-            a = new AShark(sp, sim, false, sim.sharkStarveTime, sim.sharkBreedTime);
+            a = new AShark(sp, sim, sim.sharkStarveTime, sim.sharkBreedTime);
         } else {
-            a = new AFish(sp, sim, false, sim.fishBreedTime);
+            a = new AFish(sp, sim, sim.fishBreedTime);
         }
         this.sim.getAgents().add(a);
         this.sim.getPlateau()[posx][posy] = a;

@@ -17,8 +17,8 @@ public class AFish extends Agent {
      * @param sim
      * @param isWall
      */
-    public AFish(StartPositionHandler.StartPosition sp, Simulateur sim, boolean isWall, int breedTime) {
-        super(sp, sim, isWall);
+    public AFish(StartPositionHandler.StartPosition sp, Simulateur sim, int breedTime) {
+        super(sp, sim);
 
         this.breedTime = breedTime;
         this.breed = 0;
